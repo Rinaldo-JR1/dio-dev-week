@@ -3,8 +3,9 @@ package me.dio.service.impl;
 import me.dio.domain.model.User;
 import me.dio.domain.repository.UserRepository;
 import me.dio.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.NoSuchElementException;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -15,11 +16,16 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(null);
+
+        return userRepository.findById(id).orElseThrow(NoSuchElementException::new);
     }
 
     @Override
     public User create(User user) {
-        return null;
+        if(userRepository.existsById(user.getId()) ||userRepository.existsByAccountNumber(user.getAccount().getNumber()) ){
+            throw new IllegalArgumentException("User already exists");
+        }
+
+        return userRepository.save(user);
     }
 }
